@@ -1,0 +1,48 @@
+############################
+# Visual Studio
+############################
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+############################
+# Build folders
+############################
+Debug/
+Release/
+x64/
+x86/
+build/
+out/
+
+############################
+# Compiled files
+############################
+*.obj
+*.exe
+*.dll
+*.pdb
+*.ilk
+*.lib
+*.exp
+
+############################
+# Logs
+############################
+*.log
+
+############################
+# CMake (if used)
+############################
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+############################
+# OS
+############################
+Thumbs.db
+.DS_Store
