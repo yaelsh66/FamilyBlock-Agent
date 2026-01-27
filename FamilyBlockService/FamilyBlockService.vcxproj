@@ -153,6 +153,7 @@
     <ClCompile Include="HostsBlocker.cpp" />
     <ClCompile Include="ProcessMonitor.cpp" />
     <ClCompile Include="ServiceMain.cpp" />
+    <ClCompile Include="UiPipe.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BackendClient.h" />
@@ -163,6 +164,7 @@
     <ClInclude Include="lib\json.hpp" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="ProcessMonitor.h" />
+    <ClInclude Include="UiPipe.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

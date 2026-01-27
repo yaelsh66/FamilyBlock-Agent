@@ -9,6 +9,7 @@
 #include <iostream>
 #include <thread>
 #include "Logger.h"
+#include "UiPipe.h"
 
 Controller::Controller::Controller(ProcessMonitor& procm, HostsBlocker& hostB, ConfigManager& configm, BackendClient& backend)
     : processManager(procm), hostsBlocker(hostB), configManager(configm), backendClient(backend) {
@@ -49,6 +50,8 @@ void Controller::runService() {
                 }
                 
                 secondsSinceLastReload = 0;
+                std::string msg = "You have " + std::to_string(cfg.remainingMinutes) + " minutes left";
+                SendUiMessage(msg.c_str());
             }
             
             if (cfg.isRunning) {

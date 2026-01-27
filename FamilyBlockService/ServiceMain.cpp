@@ -12,6 +12,7 @@
 #include "HostsBlocker.h"
 #include "ConfigManager.h"
 #include "BackendClient.h"
+#include "UiPipe.h"
 
 
 static const char* SERVICE_NAME = "FamilyBlockService";
@@ -53,6 +54,12 @@ void WINAPI ServiceCtrlHandler(DWORD ctrl)
     }
 }
 
+std::string GetEnv(const char* name) {
+    char buffer[512];
+    DWORD len = GetEnvironmentVariableA(name, buffer, sizeof(buffer));
+    return (len > 0 && len < sizeof(buffer)) ? std::string(buffer) : "";
+}
+
 // Service entry point: called by SCM when starting the service
 void WINAPI ServiceMain(DWORD argc, LPSTR* argv)
 {
@@ -71,8 +78,12 @@ void WINAPI ServiceMain(DWORD argc, LPSTR* argv)
     bool useSSL = false;                 // true if HTTPS, false if HTTP
 
     // Your agent identity
-    std::string deviceId = "a1";
-    std::string deviceSecret = "mySecret123";
+    std::string deviceId = GetEnv("DEVICE_ID");
+    std::string deviceSecret = GetEnv("DEVICE_SECRET");
+
+    InitUiPipe();
+    //std::string deviceId = "a1";
+    //std::string deviceSecret = "mySecret123";
 
     // Create the client
     BackendClient bc(host, port, useSSL, deviceId, deviceSecret);
