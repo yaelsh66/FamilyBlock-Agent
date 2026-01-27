@@ -66,7 +66,7 @@ void WINAPI ServiceMain(DWORD argc, LPSTR* argv)
 
     SetServiceStatusState(SERVICE_START_PENDING);
 
-    std::string host = "192.168.1.169"; // or your backend domain
+    std::string host = "192.168.1.139"; // or your backend domain
     int port = 8081;                    // whatever your Spring Boot server listens on
     bool useSSL = false;                 // true if HTTPS, false if HTTP
 

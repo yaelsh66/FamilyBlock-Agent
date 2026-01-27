@@ -6,6 +6,7 @@
 #include <iostream>
 #include "json.hpp"
 #include <httplib.h>
+#include "Logger.h"
 
 static std::wstring toWString(const std::string& s) {
     return std::wstring(s.begin(), s.end());
@@ -44,13 +45,14 @@ BackendClient::BackendClient(
 std::optional<TimeConfig>
 BackendClient::heartbeat(const TimeConfig& currentCfg) {
     using json = nlohmann::json;
-
+    log("heartbeat");
     if (!client) {
         std::cerr << "[BackendClient] HTTP client not initialized\n";
         return std::nullopt;
     }
 
     try {
+        log("try");
         // ---------------------------
         // Build JSON request
         // ---------------------------
@@ -68,7 +70,7 @@ BackendClient::heartbeat(const TimeConfig& currentCfg) {
         
 
        
-
+        log("Before Post");
         auto res = client->Post(
             "/agent/heartbeat",
             body,
@@ -78,6 +80,8 @@ BackendClient::heartbeat(const TimeConfig& currentCfg) {
             std::cerr << "[BackendClient] Network error or no response\n";
             return std::nullopt;
         }
+
+        log("After Post");
 
         if (res->status != 200) {
             std::cerr << "[BackendClient] Backend returned status "

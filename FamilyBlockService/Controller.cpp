@@ -197,12 +197,6 @@ void Controller::tickAllowedMode() {
         if (secondsCounter >= 60) {
            
             cfg.minutesToReduce++;
-            auto updated = backendClient.heartbeat(cfg);
-            if (updated) {
-                applyBackendConfig(*updated);
-            }
-           
-            cfg.minutesToReduce = 0;
             secondsCounter = 0;
         }
 

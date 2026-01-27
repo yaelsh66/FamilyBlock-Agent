@@ -42,6 +42,7 @@ void HostsBlocker::applyBlock() {
     buffer << "\n" << BLOCK_START << "\n";
     for (const auto& site : websiteNames) {
         buffer << "127.0.0.1 " << site << "\n";
+        buffer << "127.0.0.1 www." << site << "\n";
     }
     buffer << BLOCK_END << "\n";
 
