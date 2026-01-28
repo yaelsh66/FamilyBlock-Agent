@@ -112,7 +112,7 @@ BackendClient::heartbeat(const TimeConfig& currentCfg) {
             reply.value("isRunning", currentCfg.isRunning);
 
         updated.remainingMinutes =
-            reply.value("availableMinutes",
+            reply.value("remainingMinutes",
                 currentCfg.remainingMinutes);
 
         updated.blockedApps.clear();

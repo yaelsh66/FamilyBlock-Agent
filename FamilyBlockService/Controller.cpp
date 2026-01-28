@@ -48,13 +48,13 @@ void Controller::runService() {
                 if (updated) {
                     applyBackendConfig(*updated);
                 }
-                
                 secondsSinceLastReload = 0;
-                std::string msg = "You have " + std::to_string(cfg.remainingMinutes) + " minutes left";
-                SendUiMessage(msg.c_str());
             }
             
             if (cfg.isRunning) {
+                std::string msg = "You have " + std::to_string(cfg.remainingMinutes) + " minutes left";
+                SendUiMessage(msg.c_str());
+
                 log("tickAllowedMode");
                 tickAllowedMode();
             }

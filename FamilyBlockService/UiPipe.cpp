@@ -3,13 +3,23 @@
 #include <cstring>
 
 static HANDLE g_hPipe = INVALID_HANDLE_VALUE;
+static volatile bool g_uiConnected = false;
 
 // Thread waits for UI to connect
 DWORD WINAPI UiPipeThread(LPVOID)
 {
-    ConnectNamedPipe(g_hPipe, NULL);
+    BOOL ok = ConnectNamedPipe(g_hPipe, NULL) ||
+        GetLastError() == ERROR_PIPE_CONNECTED;
+
+    if (ok)
+        g_uiConnected = true;
+
     return 0;
 }
+//{
+//    ConnectNamedPipe(g_hPipe, NULL);
+//    return 0;
+//}
 
 void InitUiPipe()
 {
@@ -32,8 +42,11 @@ void InitUiPipe()
 
 void SendUiMessage(const char* text)
 {
-    if (g_hPipe == INVALID_HANDLE_VALUE)
+    if (!g_uiConnected)
         return;
+
+//    if (g_hPipe == INVALID_HANDLE_VALUE)
+//        return;
 
     DWORD written;
     BOOL ok = WriteFile(
@@ -46,8 +59,15 @@ void SendUiMessage(const char* text)
 
     if (!ok) {
         // UI likely closed; ignore
-        return;
+        // return;
+
+        // UI closed or pipe broken
+        g_uiConnected = false;
+        DisconnectNamedPipe(g_hPipe);
+
+        // Prepare for next UI instance
+        CreateThread(NULL, 0, UiPipeThread, NULL, 0, NULL);
     }
 
-    FlushFileBuffers(g_hPipe);
+    // FlushFileBuffers(g_hPipe);
 }
