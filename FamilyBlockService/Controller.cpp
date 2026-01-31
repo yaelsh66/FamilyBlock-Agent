@@ -24,7 +24,7 @@ void Controller::requestStop() {
 
 void Controller::runService() {
     
-    try {
+    
         
 
         cfg = configManager.load(configPath);
@@ -39,52 +39,58 @@ void Controller::runService() {
         }
 
         while (!stopRequested.load()) {
-            secondsSinceLastReload++;
 
-           
+            try {
 
-            if (secondsSinceLastReload >= 60) {
-                auto updated = backendClient.heartbeat(cfg);
-                if (updated) {
-                    applyBackendConfig(*updated);
+
+                secondsSinceLastReload++;
+
+
+
+                if (secondsSinceLastReload >= 60) {
+                    auto updated = backendClient.heartbeat(cfg);
+                    if (updated) {
+                        applyBackendConfig(*updated);
+                    }
+                    secondsSinceLastReload = 0;
                 }
-                secondsSinceLastReload = 0;
-            }
-            
-            if (cfg.isRunning) {
-                std::string msg = "You have " + std::to_string(cfg.remainingMinutes) + " minutes left";
-                SendUiMessage(msg.c_str());
 
-                log("tickAllowedMode");
-                tickAllowedMode();
+                if (cfg.isRunning) {
+                    std::string msg = "You have " + std::to_string(cfg.remainingMinutes) + " minutes left";
+                    SendUiMessage(msg.c_str());
+
+                    log("tickAllowedMode");
+                    tickAllowedMode();
+                }
+                else {
+                    log("tickBlockedMode");
+                    tickBlockedMode();
+                }
+
+                for (int i = 0; i < 10 && !stopRequested.load(); ++i) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                }
             }
-            else {
-                log("tickBlockedMode");
-                tickBlockedMode();
+            catch (const std::exception& ex) {
+
+                std::cerr << "[Controller] Fatal error: " << ex.what() << std::endl;
+            }
+            catch (...) {
+                std::cerr << "[Controller] Unknown fatal error" << std::endl;
             }
 
-            for (int i = 0; i < 10 && !stopRequested.load(); ++i) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(100));
-            }
+            // ABSOLUTE SAFETY: always restore hosts file
+ //           try {
+ //               hostsBlocker.removeBlock();
+ //           }
+ //           catch (const std::exception& ex) {
+ //               std::cerr << "[Controller] Failed to remove hosts block on exit: "
+ //                   << ex.what() << std::endl;
+ //           }
         }
  
-    }
-    catch (const std::exception& ex) {
-        
-        std::cerr << "[Controller] Fatal error: " << ex.what() << std::endl;
-    }
-    catch (...) {
-        std::cerr << "[Controller] Unknown fatal error" << std::endl;
-    }
     
-    // ABSOLUTE SAFETY: always restore hosts file
-    try {
-        hostsBlocker.removeBlock();
-    }
-    catch (const std::exception& ex) {
-        std::cerr << "[Controller] Failed to remove hosts block on exit: "
-            << ex.what() << std::endl;
-    }
+    
     std::cout << "[Controller] runService() exiting" << std::endl;
 }
 
