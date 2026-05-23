@@ -1,29 +1,23 @@
 # FamilyBlock Agent Deployment
 
-The Windows agent is a local service installed on a child device. It does not run on Vercel, Render, or Supabase.
+Local Windows service on child devices. Not Vercel, Render, or Supabase.
 
-## What It Connects To
+## Backend Connection
 
-- Backend API: `POST /agent/heartbeat`
-- Backend base URL: same value as `VITE_BACKEND_URL` in the frontend, stored locally as `FAMILYBLOCK_BACKEND_URL`
-
-Examples:
+- Endpoint: `POST /agent/heartbeat`
+- Base URL: same as `VITE_BACKEND_URL`, stored as `FAMILYBLOCK_BACKEND_URL`
 
 ```env
 FAMILYBLOCK_BACKEND_URL=http://localhost:8081
 FAMILYBLOCK_BACKEND_URL=https://your-backend.onrender.com
 ```
 
-## Required Local Configuration
-
-Copy the example files:
+## Setup
 
 ```powershell
 Copy-Item .env.example .env
 Copy-Item config.example.json C:\FamilyBlockService\config.json
 ```
-
-Set these values:
 
 ```env
 FAMILYBLOCK_BACKEND_URL=https://your-backend.onrender.com
@@ -32,40 +26,31 @@ DEVICE_SECRET=device-password-from-parent-ui
 FAMILYBLOCK_CONFIG_PATH=C:\FamilyBlockService\config.json
 ```
 
-Where to get device credentials:
+Device credentials: parent login → device management → add device → copy ID/password → `.env` or `config.json`.
 
-1. Log in to the frontend as a parent.
-2. Open the device management page for a child.
-3. Add a new device and copy the device ID and password.
-4. Put those values into `.env` or `config.json`.
+## Build & Install
 
-## Build And Install
+1. Open `FamilyBlockService.sln` in Visual Studio 2022
+2. Build `Release | x64`
+3. Install/run service as admin
 
-1. Open `FamilyBlockService.sln` in Visual Studio 2022.
-2. Build `Release | x64`.
-3. Install and run the service with administrator privileges on the Windows machine.
-
-## Local Development With Docker Backend
-
-If you use the workspace Docker stack:
+## Local Docker Backend
 
 ```env
 FAMILYBLOCK_BACKEND_URL=http://localhost:8081
 ```
 
-Start the backend first:
-
 ```bash
 make up-build
 ```
 
-Then configure the agent on the Windows machine to point at the backend host reachable from that machine. If the backend runs on your dev machine, `localhost:8081` is usually correct.
+Point agent at backend host reachable from the Windows machine. Dev machine backend = `localhost:8081` usually works.
 
-## Production Notes
+## Production
 
-- Use HTTPS in production: `FAMILYBLOCK_BACKEND_URL=https://your-backend.onrender.com`
-- Keep device secrets out of Git.
-- The agent requires Windows admin rights because it modifies the hosts file and manages processes.
-- If the backend sleeps on Render free tier, heartbeats may fail until the backend wakes up. Use a health-check cron on the backend for smoother demos.
+- HTTPS: `FAMILYBLOCK_BACKEND_URL=https://your-backend.onrender.com`
+- Device secrets out of Git
+- Admin rights required (hosts file + process management)
+- Render free tier sleep → heartbeat failures until wake; use backend health-check cron for demos
 
-See the workspace `DEPLOYMENT.md` for the full frontend/backend/database deployment flow.
+Full stack: workspace `DEPLOYMENT.md`
