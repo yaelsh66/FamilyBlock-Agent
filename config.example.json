@@ -1,0 +1,10 @@
+{
+  "id": "your-device-id",
+  "secret": "your-device-password",
+  "remainingMinutes": 0,
+  "minutesToReduce": 0,
+  "isRunning": true,
+  "blockedApps": [],
+  "blockedBrowserApps": [],
+  "blockedWebsites": []
+}

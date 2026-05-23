@@ -39,7 +39,13 @@ out/
 CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
-Makefile
+
+############################
+# Local secrets / runtime config
+############################
+.env
+config.json
+C:/FamilyBlockService/config.json
 
 ############################
 # OS
