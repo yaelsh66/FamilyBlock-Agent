@@ -26,7 +26,12 @@ private:
 	std::atomic<bool> stopRequested{ false };
 
 public:
-	Controller(ProcessMonitor& procm, HostsBlocker& hostB, ConfigManager& configm, BackendClient& backend);
+	Controller(
+		ProcessMonitor& procm,
+		HostsBlocker& hostB,
+		ConfigManager& configm,
+		BackendClient& backend,
+		const std::string& configPath);
 	
 
 	// Main loop: runs until requestStop() is called

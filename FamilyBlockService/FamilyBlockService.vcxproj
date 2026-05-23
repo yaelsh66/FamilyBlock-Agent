@@ -150,6 +150,7 @@
     <ClCompile Include="BackendClient.cpp" />
     <ClCompile Include="ConfigManager.cpp" />
     <ClCompile Include="Controller.cpp" />
+    <ClCompile Include="EnvConfig.cpp" />
     <ClCompile Include="HostsBlocker.cpp" />
     <ClCompile Include="ProcessMonitor.cpp" />
     <ClCompile Include="ServiceMain.cpp" />
@@ -159,6 +160,7 @@
     <ClInclude Include="BackendClient.h" />
     <ClInclude Include="ConfigManager.h" />
     <ClInclude Include="Controller.h" />
+    <ClInclude Include="EnvConfig.h" />
     <ClInclude Include="HostsBlocker.h" />
     <ClInclude Include="hpptlib.h" />
     <ClInclude Include="lib\json.hpp" />

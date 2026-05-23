@@ -12,6 +12,7 @@
 #include "HostsBlocker.h"
 #include "ConfigManager.h"
 #include "BackendClient.h"
+#include "EnvConfig.h"
 #include "UiPipe.h"
 
 
@@ -54,12 +55,6 @@ void WINAPI ServiceCtrlHandler(DWORD ctrl)
     }
 }
 
-std::string GetEnv(const char* name) {
-    char buffer[512];
-    DWORD len = GetEnvironmentVariableA(name, buffer, sizeof(buffer));
-    return (len > 0 && len < sizeof(buffer)) ? std::string(buffer) : "";
-}
-
 // Service entry point: called by SCM when starting the service
 void WINAPI ServiceMain(DWORD argc, LPSTR* argv)
 {
@@ -73,29 +68,45 @@ void WINAPI ServiceMain(DWORD argc, LPSTR* argv)
 
     SetServiceStatusState(SERVICE_START_PENDING);
 
-    std::string host = "192.168.1.139"; // or your backend domain
-    int port = 8081;                    // whatever your Spring Boot server listens on
-    bool useSSL = false;                 // true if HTTPS, false if HTTP
+    const auto backendEndpoint = ResolveBackendEndpoint();
+    if (!backendEndpoint) {
+        std::cerr << "[ServiceMain] Failed to resolve backend endpoint. Set FAMILYBLOCK_BACKEND_URL.\n";
+        SetServiceStatusState(SERVICE_STOPPED, ERROR_INVALID_PARAMETER);
+        return;
+    }
 
-    // Your agent identity
-    std::string deviceId = GetEnv("DEVICE_ID");
-    std::string deviceSecret = GetEnv("DEVICE_SECRET");
+    const std::string configPath = ResolveConfigPath();
+    ConfigManager cm;
+    TimeConfig cfg = cm.load(configPath);
+
+    std::string deviceId = GetEnvVar("DEVICE_ID");
+    std::string deviceSecret = GetEnvVar("DEVICE_SECRET");
+    if (deviceId.empty()) {
+        deviceId = cfg.id;
+    }
+    if (deviceSecret.empty()) {
+        deviceSecret = cfg.secret;
+    }
+
+    if (deviceId.empty() || deviceSecret.empty()) {
+        std::cerr << "[ServiceMain] DEVICE_ID and DEVICE_SECRET must be set via env or config file.\n";
+        SetServiceStatusState(SERVICE_STOPPED, ERROR_INVALID_PARAMETER);
+        return;
+    }
 
     InitUiPipe();
-    //std::string deviceId = "a1";
-    //std::string deviceSecret = "mySecret123";
 
-    // Create the client
-    BackendClient bc(host, port, useSSL, deviceId, deviceSecret);
+    BackendClient bc(
+        backendEndpoint->host,
+        backendEndpoint->port,
+        backendEndpoint->useSSL,
+        deviceId,
+        deviceSecret);
 
-
-    // Create dependencies
     ProcessMonitor pm;
     HostsBlocker  hb;
-    ConfigManager cm;
-    
 
-    Controller controller(pm, hb, cm, bc);
+    Controller controller(pm, hb, cm, bc, configPath);
     g_Controller = &controller;
 
     SetServiceStatusState(SERVICE_RUNNING);

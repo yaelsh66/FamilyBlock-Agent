@@ -7,15 +7,25 @@
 #include "Controller.h"
 #include <filesystem>
 #include <iostream>
+#include <system_error>
 #include <thread>
 #include "Logger.h"
 #include "UiPipe.h"
 
-Controller::Controller::Controller(ProcessMonitor& procm, HostsBlocker& hostB, ConfigManager& configm, BackendClient& backend)
-    : processManager(procm), hostsBlocker(hostB), configManager(configm), backendClient(backend) {
-    configPath = "C:\\FamilyBlockService\\config.json";
-    std::filesystem::create_directories("C:\\FamilyBlockService");
-
+Controller::Controller(
+    ProcessMonitor& procm,
+    HostsBlocker& hostB,
+    ConfigManager& configm,
+    BackendClient& backend,
+    const std::string& configuredPath)
+    : processManager(procm),
+    hostsBlocker(hostB),
+    configManager(configm),
+    backendClient(backend),
+    configPath(configuredPath) {
+    const std::filesystem::path configFile(configPath);
+    std::error_code ec;
+    std::filesystem::create_directories(configFile.parent_path(), ec);
 }
 
 void Controller::requestStop() {
